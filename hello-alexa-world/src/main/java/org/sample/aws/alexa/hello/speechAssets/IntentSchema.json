@@ -1,0 +1,25 @@
+{
+  "intents": [
+    {
+      "intent": "HelloWorldIntent",
+      "slots": [
+          {
+            "name": "howMany",
+            "type": "AMAZON.NUMBER"
+          }
+      ]
+    },
+    {
+      "intent": "HelloWorldDbIntent",
+      "slots": [
+          {
+            "name": "id",
+            "type": "AMAZON.NUMBER"
+          }
+      ]
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    }
+  ]
+}

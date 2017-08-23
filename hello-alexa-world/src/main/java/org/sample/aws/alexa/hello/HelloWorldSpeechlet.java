@@ -1,9 +1,10 @@
-package org.sample.aws.serverless.phobias;
+package org.sample.aws.alexa.hello;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazon.speech.slu.Intent;
+import com.amazon.speech.slu.Slot;
 import com.amazon.speech.speechlet.IntentRequest;
 import com.amazon.speech.speechlet.LaunchRequest;
 import com.amazon.speech.speechlet.Session;
@@ -19,8 +20,8 @@ import com.amazon.speech.ui.SimpleCard;
 /**
  * @author Arun Gupta
  */
-public class PhobiaSpeechlet implements Speechlet {
-    private static final Logger log = LoggerFactory.getLogger(PhobiaSpeechlet.class);
+public class HelloWorldSpeechlet implements Speechlet {
+    private static final Logger log = LoggerFactory.getLogger(HelloWorldSpeechlet.class);
 
     @Override
     public void onSessionStarted(final SessionStartedRequest request, final Session session)
@@ -48,7 +49,14 @@ public class PhobiaSpeechlet implements Speechlet {
         String intentName = (intent != null) ? intent.getName() : null;
 
         if ("HelloWorldIntent".equals(intentName)) {
-            return getHelloResponse();
+            Slot slot = intent.getSlot("howMany");
+            Integer times = (slot != null && slot.getValue() != null) ? Integer.parseInt(slot.getValue()) : 1;
+            return getHelloResponse(times);
+        } else if ("HelloWorldDbIntent".equals(intentName)) {
+            Slot slot = intent.getSlot("id");
+            String id = (slot != null) ? slot.getValue() : "1";
+            Person person = DBUtil.getPerson(id);
+            return getHelloDbResponse(person, id);
         } else if ("AMAZON.HelpIntent".equals(intentName)) {
             return getHelpResponse();
         } else {
@@ -93,12 +101,35 @@ public class PhobiaSpeechlet implements Speechlet {
      *
      * @return SpeechletResponse spoken and visual response for the given intent
      */
-    private SpeechletResponse getHelloResponse() {
-        String speechText = "Hello world";
-
+    private SpeechletResponse getHelloResponse(int times) {
+        String speechText = "";
+        for (int i=0; i<times; i++) {
+            speechText += "Hello world " + (i+1) + " time. ";
+        }
+        
         // Create the Simple card content.
         SimpleCard card = new SimpleCard();
         card.setTitle("HelloWorld");
+        card.setContent(speechText);
+
+        // Create the plain text output.
+        PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
+        speech.setText(speechText);
+
+        return SpeechletResponse.newTellResponse(speech, card);
+    }
+    
+    private SpeechletResponse getHelloDbResponse(Person person, String id) {
+        String speechText = "";
+        
+        if (person != null && person.getId() != null)
+            speechText = "Name of the person with id " + person.getId() + " is " + person.getName();
+        else
+            speechText = "No person found with id " + id;
+
+        // Create the Simple card content.
+        SimpleCard card = new SimpleCard();
+        card.setTitle("HelloDbWorld");
         card.setContent(speechText);
 
         // Create the plain text output.

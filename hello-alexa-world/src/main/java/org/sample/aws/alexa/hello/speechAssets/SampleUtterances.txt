@@ -1,0 +1,4 @@
+HelloWorldIntent say hello
+HelloWorldIntent say hello {howMany} times
+
+HelloWorldDbIntent what is the name of {id}
